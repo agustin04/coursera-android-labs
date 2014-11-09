@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Moder Art UI</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">More Information</string>
+    <string name="dialog_text">"Inspired by the works of artists such as Piet Mondrian and Ben Nicholson\n Click below to see more"</string>
+
+</resources>
