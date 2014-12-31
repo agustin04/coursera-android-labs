@@ -5,19 +5,21 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.ListActivity;
+import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ImageView;
+import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ListView;
 
 public class MainActivity extends ListActivity {
@@ -30,8 +32,12 @@ public class MainActivity extends ListActivity {
 	
 	private SelfieAdapter mSelfieAdapter;
 
-	private File mLastPictureFile;
+	private File mLastPictureFile; 
 	
+	private static final long INITIAL_ALARM_DELAY = 2 * 60 * 1000L;
+	private AlarmManager mAlarmManager;
+	private Intent mNotificationReceiverIntent;
+	private PendingIntent mNotificationReceiverPendingIntent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +47,29 @@ public class MainActivity extends ListActivity {
 		
 		mSelfieAdapter = new SelfieAdapter(this);
 		listView.setAdapter(mSelfieAdapter);
+		
+		registerForContextMenu(listView);
+		
+		setAlarms();
 	}
 	
-	
+	public void setAlarms(){
+		// Get the AlarmManager Service
+		mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+		
+		// Create an Intent to broadcast to the AlarmNotificationReceiver
+				mNotificationReceiverIntent = new Intent(this,
+						NotificationReceiver.class);
+		
+				// Create an PendingIntent that holds the NotificationReceiverIntent
+		mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
+				this, 0, mNotificationReceiverIntent, 0);
+				
+		// Set single alarm
+		mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+				System.currentTimeMillis() + INITIAL_ALARM_DELAY, INITIAL_ALARM_DELAY,
+				mNotificationReceiverPendingIntent);
+	}
 
 	private File createImageFile() throws IOException {
 	    // Create an image file name
@@ -121,9 +147,6 @@ public class MainActivity extends ListActivity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
 		
 		if(id == R.id.action_camera){
 			
@@ -131,5 +154,27 @@ public class MainActivity extends ListActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		// TODO Auto-generated method stub
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.context_menu, menu);
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		switch(item.getItemId()){
+		case R.id.context_delete:
+			
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+
 	}
 }

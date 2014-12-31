@@ -128,14 +128,15 @@ public class SelfieAdapter extends BaseAdapter{
 	    for (File file : files) {
 	        if (file.isFile()) {
 	        	if(file.getName().endsWith(".jpg")){
-	                list.add(new Selfie(file));
+	                list.add(0,new Selfie(file));
 	            }
 	        }
 	    }
 	}
 	
 	public void add(File listItem) {
-		list.add(new Selfie(listItem));
+		list.add(0,new Selfie(listItem));
+		
 		notifyDataSetChanged();
 	}
 	
